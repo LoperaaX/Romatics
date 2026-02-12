@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Una preguntica 💘</title>
+
+  <style>
+    :root{
+      --bg1:#ffb6c1;
+      --bg2:#ffc8d7;
+      --card:#ffffffcc;
+      --text:#1f1f1f;
+      --muted:#666;
+      --yes:#111;
+      --yesText:#fff;
+      --no:#f3f3f3;
+      --noText:#111;
+      --shadow: 0 20px 60px rgba(0,0,0,.15);
+      --radius: 26px;
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 20% 20%, #ffe1ea 0%, transparent 60%),
+        radial-gradient(900px 600px at 80% 30%, #ffd1de 0%, transparent 55%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      padding:18px;
+      overflow:hidden;
+    }
+
+    .card{
+      width: min(520px, 94vw);
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,.7);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 22px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header{
+      text-align:center;
+      padding: 6px 6px 10px;
+    }
+    .title{
+      margin:0;
+      font-size: clamp(26px, 5vw, 34px);
+      font-weight: 900;
+      letter-spacing: .2px;
+    }
+    .subtitle{
+      margin:8px 0 0;
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .bubble{
+      margin: 16px auto 0;
+      width: 100%;
+      background: rgba(255,255,255,.75);
+      border: 1px solid rgba(0,0,0,.06);
+      border-radius: 18px;
+      padding: 14px 14px;
+      font-size: clamp(16px, 3.6vw, 18px);
+      text-align:center;
+      box-shadow: 0 10px 24px rgba(0,0,0,.07);
+    }
+
+    .actions{
+      margin-top: 16px;
+      display:flex;
+      justify-content:center;
+      gap: 12px;
+      padding: 8px 0 2px;
+      flex-wrap: wrap;
+    }
+
+    button{
+      border:none;
+      cursor:pointer;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-weight: 800;
+      font-size: 16px;
+      transition: transform .2s ease, opacity .2s ease, filter .2s ease;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      min-width: 110px;
+    }
+
+    /* Botón SÍ (crece) */
+    #yesBtn{
+      background: var(--yes);
+      color: var(--yesText);
+      box-shadow: 0 12px 30px rgba(0,0,0,.18);
+      transform: translateZ(0) scale(1);
+    }
+    #yesBtn:hover{ filter: brightness(1.07); }
+
+    /* Botón NO (se va escondiendo) */
+    #noBtn{
+      background: var(--no);
+      color: var(--noText);
+      border: 1px solid rgba(0,0,0,.08);
+    }
+    #noBtn:hover{ filter: brightness(0.98); }
+
+    .status{
+      margin-top: 10px;
+      text-align:center;
+      font-size: 14px;
+      color: #333;
+      font-weight: 700;
+      min-height: 20px;
+    }
+
+    .hint{
+      margin-top: 10px;
+      text-align:center;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    /* Pantalla final */
+    .final{
+      display:none;
+      text-align:center;
+      padding: 10px 0 4px;
+      animation: pop .35s ease both;
+    }
+    @keyframes pop{
+      from{ transform: scale(.96); opacity: 0; }
+      to{ transform: scale(1); opacity: 1; }
+    }
+
+    .finalTitle{
+      margin: 12px 0 12px;
+      font-size: clamp(26px, 6vw, 32px);
+      font-weight: 1000;
+      letter-spacing: .2px;
+    }
+
+    .meme{
+      width: 100%;
+      max-width: 420px;
+      max-height: 270px;
+      object-fit: contain;
+      border-radius: 18px;
+      border: 1px solid rgba(0,0,0,.08);
+      box-shadow: 0 14px 40px rgba(0,0,0,.12);
+      background: rgba(255,255,255,.9);
+    }
+
+    .finalMsg{
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    /* Confetti (desde arriba) */
+    .confetti{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      display: none;
+      z-index: 9999;
+    }
+    .confetti.show{ display:block; }
+
+    .piece{
+      position:absolute;
+      top:-20px;
+      width: 10px;
+      height: 16px;
+      border-radius: 3px;
+      opacity: .95;
+      animation: fall linear forwards;
+      transform: rotate(0deg);
+    }
+    @keyframes fall{
+      to{
+        transform: translateY(110vh) rotate(720deg);
+        opacity: 1;
+      }
+    }
+
+    /* Corazones (desde abajo hacia arriba) */
+    .hearts{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      display: none;
+      z-index: 9998;
+    }
+    .hearts.show{ display:block; }
+
+    .heart{
+      position: absolute;
+      bottom: -30px;
+      opacity: 0.9;
+      animation: floatUp linear forwards;
+      will-change: transform, opacity;
+    }
+    @keyframes floatUp{
+      to{
+        transform: translateY(-110vh) scale(1.2);
+        opacity: 0;
+      }
+    }
+
+    /* “Modo ocultar” del NO */
+    .no-hidden{
+      opacity: 0;
+      transform: scale(.5);
+      pointer-events: none;
+      filter: blur(1px);
+    }
+
+    /* Ajustes extra para pantallas pequeñas */
+    @media (max-width: 420px){
+      body{ padding: 14px; }
+      .card{ padding: 18px; border-radius: 22px; }
+      button{ min-width: 120px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="confetti" id="confetti"></div>
+  <div class="hearts" id="hearts"></div>
+
+  <main class="card" id="card">
+    <div class="header">
+      <h1 class="title">Mariana ❤️</h1>
+      <p class="subtitle">Luis tiene una pregunta…</p>
+    </div>
+
+    <div class="bubble" id="question">
+      ¿Quieres ser mi San Valentín? 🥺✨
+    </div>
+
+    <div class="actions" id="actions">
+      <button id="yesBtn" aria-label="Sí">Sí 🥹</button>
+      <button id="noBtn" aria-label="No">No</button>
+    </div>
+
+    <div class="status" id="status"></div>
+    <div class="hint" id="hint">Ojo: el botón <b>No</b> no está nervioso… (todavía) 😅</div>
+
+    <section class="final" id="final">
+      <h2 class="finalTitle" id="finalTitle">¡SÍÍÍ! 💘</h2>
+
+      <img class="meme" id="memeImg"
+           alt="Gato feliz celebrando"
+           src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExbzhqY3oxZnd3dnA0b2I5cGVwejd0cmR3dmxjbGxmeDVhcnRpOW9hdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/MDJ9IbxxvDUQM/giphy.gif">
+
+      <p class="finalMsg" id="finalMsg">Perfectoo 😌💘 ahora ponte bien lindaa 😻</p>
+    </section>
+  </main>
+
+  <script>
+    const noMessages = [
+      "¿Segura? 👀",
+      "Ey… piénsalo bien 😅",
+      "No le des más al NO, porfa 😭",
+      "Ese NO no te queda 😏",
+      "Ojo… el SÍ está creciendo…",
+      "Ya el NO está perdiendo la pelea 😵‍💫",
+      "Listo, el NO se va a mimir 😌"
+    ];
+
+    const yesScales = [1, 1.18, 1.38, 1.62, 1.9, 2.25, 2.7, 3.2];
+
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+    const status = document.getElementById("status");
+    const actions = document.getElementById("actions");
+    const final = document.getElementById("final");
+    const confetti = document.getElementById("confetti");
+    const hearts = document.getElementById("hearts");
+    const hint = document.getElementById("hint");
+
+    let noCount = 0;
+
+    function setYesScale(n){
+      const scale = yesScales[Math.min(n, yesScales.length - 1)];
+      yesBtn.style.transform = `scale(${scale})`;
+    }
+
+    function hideNoIfNeeded(){
+      if (noCount >= 5){
+        noBtn.classList.add("no-hidden");
+      }
+    }
+
+    function onNo(){
+      noCount++;
+
+      const msg = noMessages[Math.min(noCount - 1, noMessages.length - 1)];
+      status.textContent = msg;
+
+      setYesScale(noCount);
+
+      const opacity = Math.max(0.15, 1 - (noCount * 0.18));
+      const shrink = Math.max(0.55, 1 - (noCount * 0.08));
+      noBtn.style.opacity = opacity.toFixed(2);
+      noBtn.style.transform = `scale(${shrink})`;
+
+      hideNoIfNeeded();
+    }
+
+    function launchConfetti(){
+      confetti.innerHTML = "";
+      confetti.classList.add("show");
+
+      const pieces = 120;
+      for (let i = 0; i < pieces; i++){
+        const p = document.createElement("div");
+        p.className = "piece";
+
+        const hue = Math.floor(Math.random() * 360);
+        p.style.background = `hsl(${hue} 90% 60%)`;
+
+        const left = Math.random() * 100;
+        const size = 6 + Math.random() * 10;
+        const duration = 2.6 + Math.random() * 2.2;
+        const delay = Math.random() * 0.35;
+
+        p.style.left = left + "vw";
+        p.style.width = size + "px";
+        p.style.height = (size * 1.4) + "px";
+        p.style.animationDuration = duration + "s";
+        p.style.animationDelay = delay + "s";
+
+        confetti.appendChild(p);
+      }
+
+      setTimeout(() => confetti.classList.remove("show"), 5200);
+    }
+
+    function launchHearts(){
+      hearts.innerHTML = "";
+      hearts.classList.add("show");
+
+      const emojis = ["💖","💘","💗","💓","💕","❤️"];
+      const total = 42;
+
+      for (let i = 0; i < total; i++){
+        const h = document.createElement("div");
+        h.className = "heart";
+        h.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+
+        const left = Math.random() * 100;
+        const size = 16 + Math.random() * 22;
+        const duration = 3 + Math.random() * 2.2;
+        const delay = Math.random() * 0.7;
+
+        h.style.left = left + "vw";
+        h.style.fontSize = size + "px";
+        h.style.animationDuration = duration + "s";
+        h.style.animationDelay = delay + "s";
+
+        hearts.appendChild(h);
+      }
+
+      setTimeout(() => hearts.classList.remove("show"), 5200);
+    }
+
+    function onYes(){
+      actions.style.display = "none";
+      status.textContent = "";
+      hint.style.display = "none";
+
+      final.style.display = "block";
+
+      launchConfetti(); // cae desde arriba
+      launchHearts();   // sube desde abajo 💕
+    }
+
+    noBtn.addEventListener("click", onNo);
+    yesBtn.addEventListener("click", onYes);
+
+    setYesScale(0);
+  </script>
+</body>
+</html>
